@@ -9,7 +9,7 @@ Pokec: https://snap.stanford.edu/data/soc-pokec.html
 Facebook: https://snap.stanford.edu/data/ego-Facebook.html
 Pubmed: https://linqs-data.soe.ucsc.edu/public/Pubmed-Diabetes
 
----
+
 ## GNNs (target model)
 
 The original implemenations of GNN models we used in the paper can be found here:
@@ -18,5 +18,6 @@ the implementation of both GraphSAGE and GAT from DGL package: https://github.co
 
 To run the code of GNNs, please use the environments and required packages from the links above.
 
----
+
+
 
