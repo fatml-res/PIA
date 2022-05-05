@@ -21,7 +21,13 @@ GCN: https://github.com/tkipf/pygcn
 
 the implementation of both GraphSAGE and GAT from DGL package: https://github.com/dmlc/dgl
 
-To run the code of GNNs, please use the environments and required packages from the links above
+## Requirements
+
+- To run the code of GNNs, please use the environments and required packages from the links above:
+
+ - for GCN, use PyTorch 0.4 or 0.5, Python 2.7 or 3.6
+
+ - for GraphSAGE and GAT, import the package of DGL
 
 ## Step1: 
 
