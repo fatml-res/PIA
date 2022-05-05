@@ -339,6 +339,11 @@ def main(args,data,rnd,result_train,result_test):
         f.close()
 
     with open('./%s/output_test-%s-%s-%s.txt' % (tp,ii,sed,tp), 'w') as f:
+        for item in output_train:
+            for jtem in item:
+                f.write(str(jtem) + '\t')
+            f.write('\n')
+        f.close()
         for item in output_test:
             for jtem in item:
                 f.write(str(jtem) + '\t')
