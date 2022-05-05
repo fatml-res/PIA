@@ -227,7 +227,7 @@ for tp in tps:
     index = []
     labels = []
 
-    with open("fb/feat_embed1-mlp-fb.csv") as csvfile:  ####to make sure the testing graphs of baseline are the same as those in our methods, so read the index of testing graph from the saved files
+    with open("fb-edu-gender-2.10/feat_embed1-mlp-12-13-edu-gender.csv") as csvfile:  ####to make sure the testing graphs of baseline are the same as those in our methods, so read the index of testing graph from the saved files
         csv_reader = csv.reader(csvfile)
         print(csv_reader)
         result_header = next(csv_reader)
@@ -250,25 +250,33 @@ for tp in tps:
 
         ft=ft[index]
 
-        ft=np.mean(ft,axis=1)
-        pred=[]
-        accs=[]
-
-        for u in ft:###threshold
-            for v in ft:
-                if v>u:
-                    pred.append(1)
-                else:
-                    pred.append(0)
-        acc = accuracy_score(pred, labels)
-        accs.append([tp,j,max(acc,(1-acc))])
 
 
 
-    name = ['tp', 'feature', 'acc']
-    result = pd.DataFrame(columns=name, data=accs)
-    result.to_csv("{}/results_baseline1-{}.csv".format(res_dir1,tp))
+        from sklearn.cluster import KMeans
+        from sklearn.metrics import accuracy_score
 
+        accuracy = []
+        for i in range(1000):
+            kmeans = KMeans(n_clusters=2, random_state=i).fit(ft)
+            # kmeans = KMeans(n_clusters=2, random_state=i).fit(X)
+            # print(kmeans.labels_)
+            ylabel = labels
+            acc = accuracy_score(kmeans.labels_, ylabel)
+            accuracy.append(acc)
+        print(max(accuracy))
+
+        acc_ = max(accuracy)
+
+        results.append([tp,na,acc_])
+
+    name = ['tp', 'na', 'acc']
+    result = pd.DataFrame(columns=name, data=results)
+    result.to_csv("{}/results_kmeans-{}.csv".format(res_dir1,tp))
+
+name = ['tp','na','acc']
+result = pd.DataFrame(columns=name, data=results)
+result.to_csv("{}/results_kmeans.csv".format(res_dir1))
 
 
 
