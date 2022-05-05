@@ -110,12 +110,7 @@ for tp in tps:
             embed21,embed22,embed23=readembds(file2)
 
             file3='./%s/output_test-%s-%s-12-13-%s.txt' % (f,ii, seed,tp)
-            posterior1,posterior2=readpost(file3) #for GCN model it contains the posteriors of both traning and testing nodes, for Graphsage/GAT, should uncomment the following to add the posteriors of traning set 
-            
-            # file4='./%s/output_train-%s-%s-12-13-%s.txt' % (f,ii, seed,tp) #for Graphsage/GAT, uncomment here, since the testing file of Graphsage/GAT only contains the posterior of testing nodes
-            # posterior3,posterior4=readpost(file4) 
-            # posterior1=np.concatenate((posterior3,posterior1),axis=0)
-            # posterior2=np.concatenate((posterior4,posterior2),axis=0)
+            posterior1,posterior2=readpost(file3)
             
             if (int(s / 100)) % 2 == 0:
             	feat_embed11_neg.append(np.array(embed11).flatten())
