@@ -27,18 +27,25 @@ To run the code of GNNs, please use the environments and required packages from 
 
 run three GNNs on three datasets to get the embeddings, posteriors
 
-run gcn-pokec-train.py, gcn-fb-train.py, gcn-pubmed-train.py, gs-pokec-train.py, gs-fb-train.py, gs-pubmed-train.py, gat-pokec-train.py, gat-fb-train.py, gat-pubmed-train.py
+run gcn-train.py, gs-train.py, gat-train.py
 
 ## Step2: 
 
-run Attack1/2/3/4/5/6 with the embeddings/posteriors
+run the attack models
 
-run 
+for Attack1/2/5/6, run PIA-attak1-attack2.py, PIA-attak5-attack6.py with the embeddings/posteriors from step1
 
+for Attack3/4, run dimension-reduction-tsne.py, dimension-reduction-pca.py, dimension-reduction-encoder.py
+ 
 ## Step3: 
 
 evaluate the defense mechanisms
 
+for Noisy embedding/posterior, run defense-laplace.py
+
+for Embedding truncation, run defense-embedding-truncation.py
+
+for OTHER methods we try, PCA dimension reduction: run defense-pca.py, embedding normalizartion: run defense-normalization-softmax.py
 
 ## Additional results
 
