@@ -37,15 +37,14 @@ To run the code of GNNs, please use the environments and required packages from 
 
 Run three GNNs on three datasets to get the embeddings, posteriors
 
-'''
-python GCN-train.py,  python GrapgSAGE-train.py, python GAT-train.py  
-'''
+    python GCN-train.py,  python GrapgSAGE-train.py, python GAT-train.py  
 
 ## Step2: 
 
 Run the attack models
 
-- for Attack1/2/5/6, python PIA-attak1-attack2.py, PIA-attak5-attack6.py with the embeddings/posteriors from step1
+- for Attack1/2/5/6, 
+    python PIA-attak1-attack2.py, python PIA-attak5-attack6.py with the embeddings/posteriors from step1
 
 - for Attack3/4, run dimension-reduction-tsne.py, dimension-reduction-pca.py, dimension-reduction-encoder.py
  
