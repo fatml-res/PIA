@@ -37,7 +37,9 @@ To run the code of GNNs, please use the environments and required packages from 
 
 Run three GNNs on three datasets to get the embeddings, posteriors
 
-run gcn-train.py, gs-train.py, gat-train.py
+'''
+python GCN-train.py,  python GrapgSAGE-train.py, python GAT-train.py  
+'''
 
 ## Step2: 
 
@@ -59,11 +61,11 @@ Evaluate the defense mechanisms
 
 ## Additional results
 
-We also have some other results in Results.pdf which are not included in the paper because of the space limitation, it includes the following contents:
+We also have some other results in Additional_results.pdf which are not included in the paper because of the space limitation, it includes the following contents:
 
+- the F1 score for Attack 1 and Attack 2
+ 
 - the TSNE visualization of the distribution of node embeddings and target model outputs by GNN models 
-
-- the defense results of embedding normalization
 
 - the results of Influence scores of different node/link groups on three dataset (additional results for Table 6 in the paper)
 
