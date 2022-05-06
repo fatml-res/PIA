@@ -4,7 +4,7 @@ This is the implementation for our group property inference attack against GNNs,
 
 ## Datasets
 
-The datasets we used in the paper can be download here:
+The original datasets we used in the paper can be download here:
 
 - Pokec: https://snap.stanford.edu/data/soc-pokec.html
 
@@ -12,7 +12,7 @@ The datasets we used in the paper can be download here:
 
 - Pubmed: https://linqs-data.soe.ucsc.edu/public/Pubmed-Diabetes
 
-The sampled sub-graphs for PIA can be downloaded in this link: 
+The sampled sub-graphs for PIA can be downloaded in this link: https://drive.google.com/drive/folders/1ZvaevXNSxIxE966xoKnpTHfBr21VohBo?usp=sharing
 
 - For each property task, we have 1000 sub-graphs to do training and testing, and the training/testing split ratio is 0.7/0.3.
 
