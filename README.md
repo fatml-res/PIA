@@ -33,43 +33,33 @@ To run the code of GNNs, please use the environments and required packages from 
 
  - for GraphSAGE and GAT, import the package of DGL
 
-## Step1: 
-
-Run three GNNs on three datasets to get the embeddings, posteriors
+## Step1: Run three GNNs on three datasets to get the embeddings, posteriors
 
     python GCN-train.py, python GrapgSAGE-train.py, python GAT-train.py  
 
-## Step2: 
+## Step2: Run the attack models
 
-Run the attack models
-
-- for Attack1/2/5/6, 
+for Attack1/2/5/6, 
 
     python PIA-attak1-attack2.py, python PIA-attak5-attack6.py with the embeddings/posteriors from step1
 
-- for Attack3/4 
+for Attack3/4 
 
     python dimension-reduction-tsne.py, python dimension-reduction-pca.py, python dimension-reduction-encoder.py
  
-## Step3: 
+## Step3: Evaluate the defense mechanisms
 
-Evaluate the defense mechanisms
-
-- For Noisy embedding/posterior
+For Noisy embedding/posterior
 
     python defense-laplace.py
 
-- For Embedding truncation
+For Embedding truncation
 
     python defense-embedding-truncation.py
 
-- For OTHER methods we try, PCA dimension reduction and embedding normalization defense mechanisms
-
-- PCA dimension reduction:
+For OTHER methods we try, PCA dimension reduction and embedding normalization defense mechanisms
 
     python defense-pca.py
-    
-- embedding normalization:
 
     python defense-normalization-softmax.py
 
