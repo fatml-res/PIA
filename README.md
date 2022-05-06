@@ -14,7 +14,7 @@ The original datasets we used in the paper can be download here:
 
 The sampled sub-graphs for PIA can be downloaded in this link: https://drive.google.com/drive/folders/1ZvaevXNSxIxE966xoKnpTHfBr21VohBo?usp=sharing
 
-- For each property task, we have 1000 sub-graphs to do training and testing, and the training/testing split ratio is 0.7/0.3.
+- For each property task, we have 1000 sub-graphs to do training and testing.
 
 
 ## GNNs (target model)
