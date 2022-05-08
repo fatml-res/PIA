@@ -65,13 +65,17 @@ For OTHER methods we try, PCA dimension reduction and embedding normalization de
 
 ## Additional results
 
-We also have some other results in Additional_results.pdf which are not included in the paper because of the space limitation, it includes the following contents:
+We also have some other results in Additional_results_PIA.pdf which are not included in the paper because of the space limitation, it includes the following contents:
 
 - the F1 score for Attack 1 and Attack 2
  
 - the TSNE visualization of the distribution of node embeddings and target model outputs by GNN models 
 
 - the results of Influence scores of different node/link groups on three dataset (additional results for Table 6 in the paper)
+
+- more PIA performance of different properties
+
+- property transferability of PIA 
 
 
 
