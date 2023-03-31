@@ -21,7 +21,7 @@ class EarlyStopping:
             self.save_checkpoint(model)
         elif score < self.best_score:
             self.counter += 1
-            print('EarlyStopping counter: {self.counter} out of {self.patience}')
+            # print('EarlyStopping counter: {self.counter} out of {self.patience}')
             if self.counter >= self.patience:
                 self.early_stop = True
         else:
@@ -616,6 +616,149 @@ def load_data_pokec(ii,sed,path="../data/", dataset="pokec"):
     # idx_test = torch.LongTensor(idx_test)
 
     return adj, features, labels, idx_train, idx_test
+
+def load_data_pokec_ruikai(ii,sed,path="../data/", dataset="pokec"):
+    """Load citation network dataset (cora o
+    nly for now)"""
+    print('Loading {} dataset...'.format(dataset))
+
+    num_nodes = 1600
+    num_feats = 351
+    if ii<0:
+        f2 = open("../data/pokec-interintra-small-00/pokec-adj-feat-{0}-{1}.pkl".format(str(ii),str(sed)), 'rb')
+    else:
+        f2 = open("../data/pokec-interintra-small-11/pokec-adj-feat-{0}-{1}.pkl".format(str(ii), str(sed)), 'rb')
+    adj, ft = pkl.load(f2, encoding='latin1')
+    print(np.shape(ft))
+    # print(adj[0])
+    # print(adj[10000])
+    # print(adj[12470])
+    # print(adj[22469])
+
+    g = nx.Graph(adj)
+
+
+    adj1=np.array(adj.todense())
+
+
+    feat_data = ft
+    print((np.shape(ft)))
+
+
+    gender_index = 1
+    pub_index = 0
+    age_index = 2
+    height_index = 3
+    weight_index = 4
+    region_index = 5
+
+    labels=np.array(ft)[:,pub_index]
+
+    # for i, n in enumerate(g.nodes()):
+    #     if (ft[n][gindex] == 1 and ft[n][gindex + 1] != 1):
+    #         ginfo = 1  # male
+    #         labels.append(ginfo)
+    #     elif (ft[n][gindex + 1] == 1 and ft[n][gindex] != 1):
+    #         ginfo = 2  # female
+    #         labels.append(ginfo)
+    #
+    #     else:
+    #         print('***')
+    #         ginfo = 0  # unknow gender
+    #         labels.append(ginfo)
+    #
+    #     # print(ginfo)
+    #
+    #     g.nodes[n]['gender'] = ginfo
+
+    # print(feat_data)
+    # adj_lists = defaultdict(set)
+    # #g = nx.Graph(adj)
+    # adj_dense=np.array(adj.todense())
+    # #print(adj_dense)
+    #
+    #
+    # for i in range(np.shape(adj_dense)[0]):
+    #     for j in range(i,np.shape(adj_dense)[0]):
+    #         if (adj_dense[i][j]==1):
+    #             adj_lists[i].add(j)
+    #             adj_lists[j].add(i)
+
+    #labels = np.empty((num_nodes, 1), dtype=np.int64)
+
+    # with open('../data/musae_facebook-target.txt') as tfile:
+    #     Lines = tfile.readlines()
+    #     labels = []
+    #     for line in Lines:
+    #         arr = line.strip().split(',')
+    #         labels.append(int(arr[1]))
+    #
+    # print(labels)
+    # print(np.shape(labels))
+
+    # build symmetric adjacency matrix
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    # print()
+    features = ft[:,1:]
+    print(np.shape(features))
+    # exit()
+    features = sp.csr_matrix(features, dtype=np.float32)
+
+    features = normalize(features)
+    adj = normalize(adj + sp.eye(adj.shape[0]))
+    # print(adj)
+    # print(np.shape(adj))
+
+    idx_test = range(1200,1600)
+    # idx_val = range(1800, 1977)
+    idx_train = range(0,1200)
+
+    features = torch.FloatTensor(np.array(features.todense()))
+    labels = torch.LongTensor(labels)
+
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
+
+    idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    idx_test = torch.LongTensor(idx_test)
+
+    # idx_features_labels = np.genfromtxt("{}{}.content".format(path, dataset),
+    #                                     dtype=np.dtype(str))
+    # features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
+    # labels = encode_onehot(idx_features_labels[:, -1])
+    #
+    # # build graph
+    # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    # idx_map = {j: i for i, j in enumerate(idx)}
+    # edges_unordered = np.genfromtxt("{}{}.cites".format(path, dataset),
+    #                                 dtype=np.int32)
+    # edges = np.array(list(map(idx_map.get, edges_unordered.flatten())),
+    #                  dtype=np.int32).reshape(edges_unordered.shape)
+    # adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+    #                     shape=(labels.shape[0], labels.shape[0]),
+    #                     dtype=np.float32)
+    #
+    # # build symmetric adjacency matrix
+    # adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    #
+    # features = normalize(features)
+    # adj = normalize(adj + sp.eye(adj.shape[0]))
+    #
+    # idx_train = range(677)
+    # idx_val = range(677, 1354)
+    # idx_test = range(1354, 2708)
+    #
+    # features = torch.FloatTensor(np.array(features.todense()))
+    # labels = torch.LongTensor(np.where(labels)[1])
+    # adj = sparse_mx_to_torch_sparse_tensor(adj)
+    #
+    # idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    # idx_test = torch.LongTensor(idx_test)
+
+    return adj, features, labels, idx_train, idx_test
+
+
 
 
 def load_data_pokec2(ii,sed,path="../data/", dataset="pokec"):
@@ -3702,6 +3845,147 @@ def load_data_pokec_small(ii,sed,path="../data/", dataset="pokec"):
 
     return adj, features, labels, idx_train, idx_test
 
+def load_data_pokec_small_new(ii,sed,path="../data/", dataset="pokec"):
+    """Load citation network dataset (cora only for now)"""
+    print('Loading {} dataset...'.format(dataset))
+
+    num_nodes = 1600
+    num_feats = 351
+    f2 = open("../data/pokec-small-3.16-new/pokec-adj-feat-{0}-{1}.pkl".format(str(ii),str(sed)), 'rb')
+    adj, ft = pkl.load(f2, encoding='latin1')
+    print(np.shape(ft))
+    # print(adj[0])
+    # print(adj[10000])
+    # print(adj[12470])
+    # print(adj[22469])
+
+    g = nx.Graph(adj)
+
+
+    adj1=np.array(adj.todense())
+
+
+    feat_data = ft
+    print((np.shape(ft)))
+
+
+    gender_index = 1
+    pub_index = 0
+    age_index = 2
+    height_index = 3
+    weight_index = 4
+    region_index = 5
+
+    labels=np.array(ft)[:,pub_index]
+
+    # for i, n in enumerate(g.nodes()):
+    #     if (ft[n][gindex] == 1 and ft[n][gindex + 1] != 1):
+    #         ginfo = 1  # male
+    #         labels.append(ginfo)
+    #     elif (ft[n][gindex + 1] == 1 and ft[n][gindex] != 1):
+    #         ginfo = 2  # female
+    #         labels.append(ginfo)
+    #
+    #     else:
+    #         print('***')
+    #         ginfo = 0  # unknow gender
+    #         labels.append(ginfo)
+    #
+    #     # print(ginfo)
+    #
+    #     g.nodes[n]['gender'] = ginfo
+
+    # print(feat_data)
+    # adj_lists = defaultdict(set)
+    # #g = nx.Graph(adj)
+    # adj_dense=np.array(adj.todense())
+    # #print(adj_dense)
+    #
+    #
+    # for i in range(np.shape(adj_dense)[0]):
+    #     for j in range(i,np.shape(adj_dense)[0]):
+    #         if (adj_dense[i][j]==1):
+    #             adj_lists[i].add(j)
+    #             adj_lists[j].add(i)
+
+    #labels = np.empty((num_nodes, 1), dtype=np.int64)
+
+    # with open('../data/musae_facebook-target.txt') as tfile:
+    #     Lines = tfile.readlines()
+    #     labels = []
+    #     for line in Lines:
+    #         arr = line.strip().split(',')
+    #         labels.append(int(arr[1]))
+    #
+    # print(labels)
+    # print(np.shape(labels))
+
+    # build symmetric adjacency matrix
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    # print()
+    features = ft[:,1:]
+    print(np.shape(features))
+    # exit()
+    features = sp.csr_matrix(features, dtype=np.float32)
+
+    features = normalize(features)
+    adj = normalize(adj + sp.eye(adj.shape[0]))
+    # print(adj)
+    # print(np.shape(adj))
+
+    idx_test = range(1200,1600)
+    # idx_val = range(1800, 1977)
+    idx_train = range(0,1200)
+
+    features = torch.FloatTensor(np.array(features.todense()))
+    labels = torch.LongTensor(labels)
+
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
+
+    idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    idx_test = torch.LongTensor(idx_test)
+
+    # idx_features_labels = np.genfromtxt("{}{}.content".format(path, dataset),
+    #                                     dtype=np.dtype(str))
+    # features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
+    # labels = encode_onehot(idx_features_labels[:, -1])
+    #
+    # # build graph
+    # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    # idx_map = {j: i for i, j in enumerate(idx)}
+    # edges_unordered = np.genfromtxt("{}{}.cites".format(path, dataset),
+    #                                 dtype=np.int32)
+    # edges = np.array(list(map(idx_map.get, edges_unordered.flatten())),
+    #                  dtype=np.int32).reshape(edges_unordered.shape)
+    # adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+    #                     shape=(labels.shape[0], labels.shape[0]),
+    #                     dtype=np.float32)
+    #
+    # # build symmetric adjacency matrix
+    # adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    #
+    # features = normalize(features)
+    # adj = normalize(adj + sp.eye(adj.shape[0]))
+    #
+    # idx_train = range(677)
+    # idx_val = range(677, 1354)
+    # idx_test = range(1354, 2708)
+    #
+    # features = torch.FloatTensor(np.array(features.todense()))
+    # labels = torch.LongTensor(np.where(labels)[1])
+    # adj = sparse_mx_to_torch_sparse_tensor(adj)
+    #
+    # idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    # idx_test = torch.LongTensor(idx_test)
+
+    return adj, features, labels, idx_train, idx_test
+
+
+
+
+
 
 def load_data_fb_edu_gender_small(ii,sed,path="../data/", dataset="fb"):
     """Load citation network dataset (cora only for now)"""
@@ -4618,6 +4902,121 @@ def load_data_fb_interintra_small2(ii,sed,path="../data/", dataset="fb"):
     num_feats = 1283
 
     f2 = open("../data/fb-interintra-small-3.16/fb-adj-feat-{0}-{1}.pkl".format(str(ii),str(sed)), 'rb')
+    adj, ft = pkl.load(f2, encoding='latin1')
+    print(np.shape(ft))
+    # print(adj[0])
+    # print(adj[10000])
+    # print(adj[12470])
+    # print(adj[22469])
+
+    g = nx.Graph(adj)
+    train_index = 1200
+
+    idx_test = range(train_index, 1600)
+    # idx_val = range(1800, 1977)
+    idx_train = range(0, train_index)
+
+    # adj1=np.array(adj.todense())
+
+
+
+
+    feat_data = ft
+    print((np.shape(ft)))
+
+    g_index = 77  # gender
+    r_index = 1154  # religion
+    p_index = 1278  # political
+    e_index = 53  # education_type
+
+    labels=np.array((ft)[:,e_index]-1)
+
+
+    # build symmetric adjacency matrix
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    # print()
+    idx= np.arange(num_feats)
+    idx=np.delete(idx,53)
+
+    features = ft[:,idx]
+    print(np.shape(features))
+    # exit()
+    features = sp.csr_matrix(features, dtype=np.float32)
+
+    features = normalize(features)
+    adj = normalize(adj + sp.eye(adj.shape[0]))
+    # print(adj)
+    # print(np.shape(adj))
+
+
+    num_nodes=np.shape(ft)[0]
+    train_index = 1200
+
+    idx_test = range(train_index, num_nodes)
+    # idx_val = range(1800, 1977)
+    idx_train = range(0, train_index)
+
+    # idx_test = range(1200,1600)
+    # # idx_val = range(1800, 1977)
+    # idx_train = range(0,1200)
+
+    features = torch.FloatTensor(np.array(features.todense()))
+    labels = torch.LongTensor(labels)
+
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
+
+    idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    idx_test = torch.LongTensor(idx_test)
+
+    # idx_features_labels = np.genfromtxt("{}{}.content".format(path, dataset),
+    #                                     dtype=np.dtype(str))
+    # features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
+    # labels = encode_onehot(idx_features_labels[:, -1])
+    #
+    # # build graph
+    # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    # idx_map = {j: i for i, j in enumerate(idx)}
+    # edges_unordered = np.genfromtxt("{}{}.cites".format(path, dataset),
+    #                                 dtype=np.int32)
+    # edges = np.array(list(map(idx_map.get, edges_unordered.flatten())),
+    #                  dtype=np.int32).reshape(edges_unordered.shape)
+    # adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+    #                     shape=(labels.shape[0], labels.shape[0]),
+    #                     dtype=np.float32)
+    #
+    # # build symmetric adjacency matrix
+    # adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    #
+    # features = normalize(features)
+    # adj = normalize(adj + sp.eye(adj.shape[0]))
+    #
+    # idx_train = range(677)
+    # idx_val = range(677, 1354)
+    # idx_test = range(1354, 2708)
+    #
+    # features = torch.FloatTensor(np.array(features.todense()))
+    # labels = torch.LongTensor(np.where(labels)[1])
+    # adj = sparse_mx_to_torch_sparse_tensor(adj)
+    #
+    # idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    # idx_test = torch.LongTensor(idx_test)
+
+    return adj, features, labels, idx_train, idx_test
+def load_data_fb_interintra_small_ruikai(ii,sed,path="../data/", dataset="fb"):
+    """Load citation network dataset (cora only for now)"""
+    print('Loading {} dataset...'.format(dataset))
+
+    num_nodes = 1600
+    num_feats = 1283
+
+    if ii<0:
+
+        f2 = open("../data/fb-interintra-small-0/fb-adj-feat-{0}-{1}.pkl".format(str(ii),str(sed)), 'rb')
+
+    else:
+        f2 = open("../data/fb-interintra-small-1/fb-adj-feat-{0}-{1}.pkl".format(str(ii), str(sed)), 'rb')
     adj, ft = pkl.load(f2, encoding='latin1')
     print(np.shape(ft))
     # print(adj[0])
@@ -7805,6 +8204,125 @@ def load_data_fb_ego_698_orig(nd,gindex):
 
     return adj, features, labels, idx_train
 
+def load_data_fb_ego_698_orig_noise(nd,gindex):
+    """Load citation network dataset (cora only for now)"""
+    # print('Loading {} dataset...'.format(dataset))
+
+    # num_nodes = 1600
+    # num_feats = 1283
+
+    f2 = open("./698-adj-feat.pkl", 'rb')
+    adj, ft = pkl.load(f2, encoding='latin1')
+    print(np.shape(ft))
+
+    g = nx.Graph(adj)
+    # ed=list(g.edges())[nd]
+    # e1=ed[0]
+    # e2=ed[1]
+    #
+    # adj1=np.array(adj.todense())
+    # adj1[e1][e2]=0
+    # adj1[e2][e1] = 0
+    adj1=adj
+
+    g1 = nx.Graph(adj1)
+    adj = nx.adjacency_matrix(g1)
+
+
+    #
+    #
+    # ft = np.delete(ft, nd,0)
+    #
+    # print(np.shape(ft))
+    # print(np.shape(adj1))
+    #
+    # adj1 = np.delete(adj1, nd,0)
+    # adj1 = np.delete(adj1, nd,1)
+    # print(np.shape(adj1))
+    #
+    # g1 = nx.Graph(adj1)
+    #
+    # adj=nx.adjacency_matrix(g1)
+
+    feat_data = ft
+    # print((np.shape(ft)))
+
+    g_index = 26  # gender
+    r_index = 1154  # religion
+    p_index = 1278  # political
+    e_index = 53  # education_type
+
+    labels=np.array((ft)[:,g_index])
+    print(set(labels))
+
+
+    # build symmetric adjacency matrix
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    # print()
+    num_feats=np.shape(ft)[1]
+    idx= np.arange(num_feats)
+    idx=np.delete(idx,26)
+
+    features = ft[:,idx]
+    print(np.shape(features))
+    # exit()
+    features = sp.csr_matrix(features, dtype=np.float32)
+
+    features = normalize(features)
+    adj = normalize(adj + sp.eye(adj.shape[0]))
+    # print(adj)
+    # print(np.shape(adj))
+
+    idx_test = range(int(0.7*g.number_of_nodes()),g.number_of_nodes())
+    # idx_val = range(1800, 1977)
+    idx_train = range(0,int(0.7*g.number_of_nodes()))
+
+    features = torch.FloatTensor(np.array(features.todense()))
+    labels = torch.LongTensor(labels)
+
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
+
+    idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    idx_test = torch.LongTensor(idx_test)
+
+    # idx_features_labels = np.genfromtxt("{}{}.content".format(path, dataset),
+    #                                     dtype=np.dtype(str))
+    # features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
+    # labels = encode_onehot(idx_features_labels[:, -1])
+    #
+    # # build graph
+    # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    # idx_map = {j: i for i, j in enumerate(idx)}
+    # edges_unordered = np.genfromtxt("{}{}.cites".format(path, dataset),
+    #                                 dtype=np.int32)
+    # edges = np.array(list(map(idx_map.get, edges_unordered.flatten())),
+    #                  dtype=np.int32).reshape(edges_unordered.shape)
+    # adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+    #                     shape=(labels.shape[0], labels.shape[0]),
+    #                     dtype=np.float32)
+    #
+    # # build symmetric adjacency matrix
+    # adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    #
+    # features = normalize(features)
+    # adj = normalize(adj + sp.eye(adj.shape[0]))
+    #
+    # idx_train = range(677)
+    # idx_val = range(677, 1354)
+    # idx_test = range(1354, 2708)
+    #
+    # features = torch.FloatTensor(np.array(features.todense()))
+    # labels = torch.LongTensor(np.where(labels)[1])
+    # adj = sparse_mx_to_torch_sparse_tensor(adj)
+    #
+    # idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    # idx_test = torch.LongTensor(idx_test)
+
+    return adj, features, labels, idx_train,idx_test
+
+
 
 def load_data_pokec_ego(nd):
     """Load citation network dataset (cora only for now)"""
@@ -8152,6 +8670,134 @@ def load_data_pokec_ego_orig(nd):
     # idx_test = torch.LongTensor(idx_test)
 
     return adj, features, labels, idx_train
+
+
+def load_data_pokec_ego_orig_noise(nd):
+    """Load citation network dataset (cora only for now)"""
+    # print('Loading {} dataset...'.format(dataset))
+
+    # num_nodes = 1600
+    # num_feats = 1283
+
+    f2 = open("./pokec-ego.pkl", 'rb')
+    adj, ft = pkl.load(f2, encoding='latin1')
+    print(np.shape(ft))
+
+    g = nx.Graph(adj)
+    # ed=list(g.edges())[nd]
+    # e1=ed[0]
+    # e2=ed[1]
+    #
+    # adj1=np.array(adj.todense())
+    # adj1[e1][e2]=0
+    # adj1[e2][e1] = 0
+    adj1=adj
+
+    g1 = nx.Graph(adj1)
+    adj = nx.adjacency_matrix(g1)
+
+
+    #
+    #
+    # ft = np.delete(ft, nd,0)
+    #
+    # print(np.shape(ft))
+    # print(np.shape(adj1))
+    #
+    # adj1 = np.delete(adj1, nd,0)
+    # adj1 = np.delete(adj1, nd,1)
+    # print(np.shape(adj1))
+    #
+    # g1 = nx.Graph(adj1)
+    #
+    # adj=nx.adjacency_matrix(g1)
+
+    feat_data = ft
+    # print((np.shape(ft)))
+
+    # g_index = 26  # gender
+    # r_index = 1154  # religion
+    # p_index = 1278  # political
+    # e_index = 53  # education_type
+
+    labels = np.array((ft)[:, 0])
+    print(set(labels))
+
+
+    # build symmetric adjacency matrix
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    # print()
+    num_feats=np.shape(ft)[1]
+    idx= np.arange(num_feats)
+    idx=np.delete(idx,0)
+
+    features = ft[:,idx]
+    print(np.shape(features))
+    # exit()
+    features = sp.csr_matrix(features, dtype=np.float32)
+
+    features = normalize(features)
+    adj = normalize(adj + sp.eye(adj.shape[0]))
+    # print(adj)
+    # print(np.shape(adj))
+
+    # idx_test = range(1200,1600)
+    # idx_val = range(1800, 1977)
+    # idx_train = range(0,g.number_of_nodes())
+
+
+    idx_test = range(int(0.7*g.number_of_nodes()),g.number_of_nodes())
+    # idx_val = range(1800, 1977)
+    idx_train = range(0,int(0.7*g.number_of_nodes()))
+
+
+    features = torch.FloatTensor(np.array(features.todense()))
+    labels = torch.LongTensor(labels)
+
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
+
+    idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    idx_test = torch.LongTensor(idx_test)
+
+    # idx_features_labels = np.genfromtxt("{}{}.content".format(path, dataset),
+    #                                     dtype=np.dtype(str))
+    # features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
+    # labels = encode_onehot(idx_features_labels[:, -1])
+    #
+    # # build graph
+    # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    # idx_map = {j: i for i, j in enumerate(idx)}
+    # edges_unordered = np.genfromtxt("{}{}.cites".format(path, dataset),
+    #                                 dtype=np.int32)
+    # edges = np.array(list(map(idx_map.get, edges_unordered.flatten())),
+    #                  dtype=np.int32).reshape(edges_unordered.shape)
+    # adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+    #                     shape=(labels.shape[0], labels.shape[0]),
+    #                     dtype=np.float32)
+    #
+    # # build symmetric adjacency matrix
+    # adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    #
+    # features = normalize(features)
+    # adj = normalize(adj + sp.eye(adj.shape[0]))
+    #
+    # idx_train = range(677)
+    # idx_val = range(677, 1354)
+    # idx_test = range(1354, 2708)
+    #
+    # features = torch.FloatTensor(np.array(features.todense()))
+    # labels = torch.LongTensor(np.where(labels)[1])
+    # adj = sparse_mx_to_torch_sparse_tensor(adj)
+    #
+    # idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    # idx_test = torch.LongTensor(idx_test)
+
+    return adj, features, labels, idx_train,idx_test
+
+
+
 
 
 def load_data_pubmed_ego(nd):
@@ -8510,3 +9156,946 @@ def load_pubmed_ego_orig(nd):
     # idx_test = torch.LongTensor(idx_test)
 
     return adj, features, labels, idx_train
+
+
+def load_pubmed_ego_orig(nd):
+    """Load citation network dataset (cora only for now)"""
+    # print('Loading {} dataset...'.format(dataset))
+
+    # num_nodes = 1600
+    # num_feats = 1283
+
+    f2 = open("./pubmed-ego.pkl", 'rb')
+    adj, ft,lb = pkl.load(f2, encoding='latin1')
+    print(np.shape(ft))
+
+    g = nx.Graph(adj)
+    # ed=list(g.edges())[nd]
+    # e1=ed[0]
+    # e2=ed[1]
+    #
+    # adj1=np.array(adj.todense())
+    # adj1[e1][e2]=0
+    # adj1[e2][e1] = 0
+    adj1=adj
+
+    g1 = nx.Graph(adj1)
+    adj = nx.adjacency_matrix(g1)
+
+
+    #
+    #
+    # ft = np.delete(ft, nd,0)
+    #
+    # print(np.shape(ft))
+    # print(np.shape(adj1))
+    #
+    # adj1 = np.delete(adj1, nd,0)
+    # adj1 = np.delete(adj1, nd,1)
+    # print(np.shape(adj1))
+    #
+    # g1 = nx.Graph(adj1)
+    #
+    # adj=nx.adjacency_matrix(g1)
+
+    feat_data = ft
+    # print((np.shape(ft)))
+
+    # g_index = 26  # gender
+    # r_index = 1154  # religion
+    # p_index = 1278  # political
+    # e_index = 53  # education_type
+
+    labels=lb-1
+    print(set(labels))
+
+    # for l in range(len(labels)):
+    #     if labels[l]>=0:
+    #         labels[l]=1
+
+    # build symmetric adjacency matrix
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    # print()
+    num_feats=np.shape(ft)[1]
+    idx= np.arange(num_feats)
+    # idx=np.delete(idx,126)
+
+    features = ft[:,idx]
+    print(np.shape(features))
+    # exit()
+    features = sp.csr_matrix(features, dtype=np.float32)
+
+    features = normalize(features)
+    adj = normalize(adj + sp.eye(adj.shape[0]))
+    # print(adj)
+    # print(np.shape(adj))
+
+    # idx_test = range(1200,1600)
+    # idx_val = range(1800, 1977)
+    idx_train = range(0,g.number_of_nodes())
+
+    features = torch.FloatTensor(np.array(features.todense()))
+    labels = torch.LongTensor(labels)
+
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
+
+    idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    # idx_test = torch.LongTensor(idx_test)
+
+    # idx_features_labels = np.genfromtxt("{}{}.content".format(path, dataset),
+    #                                     dtype=np.dtype(str))
+    # features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
+    # labels = encode_onehot(idx_features_labels[:, -1])
+    #
+    # # build graph
+    # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    # idx_map = {j: i for i, j in enumerate(idx)}
+    # edges_unordered = np.genfromtxt("{}{}.cites".format(path, dataset),
+    #                                 dtype=np.int32)
+    # edges = np.array(list(map(idx_map.get, edges_unordered.flatten())),
+    #                  dtype=np.int32).reshape(edges_unordered.shape)
+    # adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+    #                     shape=(labels.shape[0], labels.shape[0]),
+    #                     dtype=np.float32)
+    #
+    # # build symmetric adjacency matrix
+    # adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    #
+    # features = normalize(features)
+    # adj = normalize(adj + sp.eye(adj.shape[0]))
+    #
+    # idx_train = range(677)
+    # idx_val = range(677, 1354)
+    # idx_test = range(1354, 2708)
+    #
+    # features = torch.FloatTensor(np.array(features.todense()))
+    # labels = torch.LongTensor(np.where(labels)[1])
+    # adj = sparse_mx_to_torch_sparse_tensor(adj)
+    #
+    # idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    # idx_test = torch.LongTensor(idx_test)
+
+    return adj, features, labels, idx_train,
+
+def load_pubmed_ego_orig_noise(nd):
+    """Load citation network dataset (cora only for now)"""
+    # print('Loading {} dataset...'.format(dataset))
+
+    # num_nodes = 1600
+    # num_feats = 1283
+
+    f2 = open("./pubmed-ego.pkl", 'rb')
+    adj, ft,lb = pkl.load(f2, encoding='latin1')
+    print(np.shape(ft))
+
+    g = nx.Graph(adj)
+    # ed=list(g.edges())[nd]
+    # e1=ed[0]
+    # e2=ed[1]
+    #
+    # adj1=np.array(adj.todense())
+    # adj1[e1][e2]=0
+    # adj1[e2][e1] = 0
+    adj1=adj
+
+    g1 = nx.Graph(adj1)
+    adj = nx.adjacency_matrix(g1)
+
+
+    #
+    #
+    # ft = np.delete(ft, nd,0)
+    #
+    # print(np.shape(ft))
+    # print(np.shape(adj1))
+    #
+    # adj1 = np.delete(adj1, nd,0)
+    # adj1 = np.delete(adj1, nd,1)
+    # print(np.shape(adj1))
+    #
+    # g1 = nx.Graph(adj1)
+    #
+    # adj=nx.adjacency_matrix(g1)
+
+    feat_data = ft
+    # print((np.shape(ft)))
+
+    # g_index = 26  # gender
+    # r_index = 1154  # religion
+    # p_index = 1278  # political
+    # e_index = 53  # education_type
+
+    labels=lb-1
+    print(set(labels))
+
+    # for l in range(len(labels)):
+    #     if labels[l]>=0:
+    #         labels[l]=1
+
+    # build symmetric adjacency matrix
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    # print()
+    num_feats=np.shape(ft)[1]
+    idx= np.arange(num_feats)
+    # idx=np.delete(idx,126)
+
+    features = ft[:,idx]
+    print(np.shape(features))
+    # exit()
+    features = sp.csr_matrix(features, dtype=np.float32)
+
+    features = normalize(features)
+    adj = normalize(adj + sp.eye(adj.shape[0]))
+    # print(adj)
+    # print(np.shape(adj))
+
+    # idx_test = range(1200,1600)
+    # idx_val = range(1800, 1977)
+    # idx_train = range(0,g.number_of_nodes())
+    idx_test = range(int(0.7*g.number_of_nodes()),g.number_of_nodes())
+    # idx_val = range(1800, 1977)
+    idx_train = range(0,int(0.7*g.number_of_nodes()))
+
+    features = torch.FloatTensor(np.array(features.todense()))
+    labels = torch.LongTensor(labels)
+
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
+
+    idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    idx_test = torch.LongTensor(idx_test)
+
+    # idx_features_labels = np.genfromtxt("{}{}.content".format(path, dataset),
+    #                                     dtype=np.dtype(str))
+    # features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
+    # labels = encode_onehot(idx_features_labels[:, -1])
+    #
+    # # build graph
+    # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    # idx_map = {j: i for i, j in enumerate(idx)}
+    # edges_unordered = np.genfromtxt("{}{}.cites".format(path, dataset),
+    #                                 dtype=np.int32)
+    # edges = np.array(list(map(idx_map.get, edges_unordered.flatten())),
+    #                  dtype=np.int32).reshape(edges_unordered.shape)
+    # adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+    #                     shape=(labels.shape[0], labels.shape[0]),
+    #                     dtype=np.float32)
+    #
+    # # build symmetric adjacency matrix
+    # adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    #
+    # features = normalize(features)
+    # adj = normalize(adj + sp.eye(adj.shape[0]))
+    #
+    # idx_train = range(677)
+    # idx_val = range(677, 1354)
+    # idx_test = range(1354, 2708)
+    #
+    # features = torch.FloatTensor(np.array(features.todense()))
+    # labels = torch.LongTensor(np.where(labels)[1])
+    # adj = sparse_mx_to_torch_sparse_tensor(adj)
+    #
+    # idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    # idx_test = torch.LongTensor(idx_test)
+
+    return adj, features, labels, idx_train,idx_test
+
+
+
+def load_data_fb_node_influence(nd,gindex,ii,sed):
+    """Load citation network dataset (cora only for now)"""
+    # print('Loading {} dataset...'.format(dataset))
+
+    # num_nodes = 1600
+    # num_feats = 1283
+
+    f2 = open("../data/fb-edu-gender2/fb-adj-feat-{0}-{1}-edu-gender.pkl".format(str(ii), str(sed)), 'rb')
+
+    #
+    # f2 = open("./698-adj-feat.pkl", 'rb')
+    adj, ft = pkl.load(f2, encoding='latin1')
+    print(np.shape(ft))
+
+    g = nx.Graph(adj)
+
+
+    adj1=np.array(adj.todense())
+    #
+
+
+    ft = np.delete(ft, nd,0)
+
+    print(np.shape(ft))
+    print(np.shape(adj1))
+
+    adj1 = np.delete(adj1, nd,0)
+    adj1 = np.delete(adj1, nd,1)
+    print(np.shape(adj1))
+
+    g1 = nx.Graph(adj1)
+
+    adj=nx.adjacency_matrix(g1)
+
+    feat_data = ft
+    # print((np.shape(ft)))
+
+    g_index = 26  # gender
+    r_index = 1154  # religion
+    p_index = 1278  # political
+    e_index = 53  # education_type
+
+    labels=np.array((ft)[:,g_index])
+    print(set(labels))
+
+
+    # build symmetric adjacency matrix
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    # print()
+    num_feats=np.shape(ft)[1]
+    idx= np.arange(num_feats)
+    idx=np.delete(idx,26)
+
+    features = ft[:,idx]
+    print(np.shape(features))
+    # exit()
+    features = sp.csr_matrix(features, dtype=np.float32)
+
+    features = normalize(features)
+    adj = normalize(adj + sp.eye(adj.shape[0]))
+    # print(adj)
+    # print(np.shape(adj))
+
+    # idx_test = range(1200,1600)
+    # idx_val = range(1800, 1977)
+    idx_train = range(0,g1.number_of_nodes())
+
+    features = torch.FloatTensor(np.array(features.todense()))
+    labels = torch.LongTensor(labels)
+
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
+
+    idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    # idx_test = torch.LongTensor(idx_test)
+
+    # idx_features_labels = np.genfromtxt("{}{}.content".format(path, dataset),
+    #                                     dtype=np.dtype(str))
+    # features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
+    # labels = encode_onehot(idx_features_labels[:, -1])
+    #
+    # # build graph
+    # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    # idx_map = {j: i for i, j in enumerate(idx)}
+    # edges_unordered = np.genfromtxt("{}{}.cites".format(path, dataset),
+    #                                 dtype=np.int32)
+    # edges = np.array(list(map(idx_map.get, edges_unordered.flatten())),
+    #                  dtype=np.int32).reshape(edges_unordered.shape)
+    # adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+    #                     shape=(labels.shape[0], labels.shape[0]),
+    #                     dtype=np.float32)
+    #
+    # # build symmetric adjacency matrix
+    # adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    #
+    # features = normalize(features)
+    # adj = normalize(adj + sp.eye(adj.shape[0]))
+    #
+    # idx_train = range(677)
+    # idx_val = range(677, 1354)
+    # idx_test = range(1354, 2708)
+    #
+    # features = torch.FloatTensor(np.array(features.todense()))
+    # labels = torch.LongTensor(np.where(labels)[1])
+    # adj = sparse_mx_to_torch_sparse_tensor(adj)
+    #
+    # idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    # idx_test = torch.LongTensor(idx_test)
+
+    return adj, features, labels, idx_train
+
+def load_data_pokec_age_region(ii,sed,path="../data/", dataset="pokec"):
+    """Load citation network dataset (cora only for now)"""
+    print('Loading {} dataset...'.format(dataset))
+
+    num_nodes = 10000
+    num_feats = 351
+    f2 = open("../data/pokec/pokec-adj-feat-{0}-{1}.pkl".format(str(ii),str(sed)), 'rb')
+    adj, ft = pkl.load(f2, encoding='latin1')
+    # print(adj[0])
+    # print(adj[10000])
+    # print(adj[12470])
+    # print(adj[22469])
+
+    g = nx.Graph(adj)
+
+
+    adj1=np.array(adj.todense())
+
+
+    feat_data = ft
+    # print((ft))
+
+
+    gender_index = 1
+    pub_index = 0
+    age_index = 2
+    height_index = 3
+    weight_index = 4
+    region_index = 5
+
+    labels=np.array(ft)[:,region_index]
+    print(labels)
+
+    # for i, n in enumerate(g.nodes()):
+    #     if (ft[n][gindex] == 1 and ft[n][gindex + 1] != 1):
+    #         ginfo = 1  # male
+    #         labels.append(ginfo)
+    #     elif (ft[n][gindex + 1] == 1 and ft[n][gindex] != 1):
+    #         ginfo = 2  # female
+    #         labels.append(ginfo)
+    #
+    #     else:
+    #         print('***')
+    #         ginfo = 0  # unknow gender
+    #         labels.append(ginfo)
+    #
+    #     # print(ginfo)
+    #
+    #     g.nodes[n]['gender'] = ginfo
+
+    # print(feat_data)
+    # adj_lists = defaultdict(set)
+    # #g = nx.Graph(adj)
+    # adj_dense=np.array(adj.todense())
+    # #print(adj_dense)
+    #
+    #
+    # for i in range(np.shape(adj_dense)[0]):
+    #     for j in range(i,np.shape(adj_dense)[0]):
+    #         if (adj_dense[i][j]==1):
+    #             adj_lists[i].add(j)
+    #             adj_lists[j].add(i)
+
+    #labels = np.empty((num_nodes, 1), dtype=np.int64)
+
+    # with open('../data/musae_facebook-target.txt') as tfile:
+    #     Lines = tfile.readlines()
+    #     labels = []
+    #     for line in Lines:
+    #         arr = line.strip().split(',')
+    #         labels.append(int(arr[1]))
+    #
+    # print(labels)
+    # print(np.shape(labels))
+
+    # build symmetric adjacency matrix
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    # print()
+    idx=[0,1,2,3,4]
+    features = ft[:,idx]
+    # print(np.shape(features))
+    features = sp.csr_matrix(features, dtype=np.float16)
+
+    features = normalize(features)
+    adj = normalize(adj + sp.eye(adj.shape[0]))
+    # print(adj)
+    # print(np.shape(adj))
+
+    idx_test = range(7000,10000)
+    # idx_val = range(1800, 1977)
+    idx_train = range(0,7000)
+
+    features = torch.FloatTensor(np.array(features.todense()))
+    labels = torch.LongTensor(labels)
+
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
+
+    idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    idx_test = torch.LongTensor(idx_test)
+
+    # idx_features_labels = np.genfromtxt("{}{}.content".format(path, dataset),
+    #                                     dtype=np.dtype(str))
+    # features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
+    # labels = encode_onehot(idx_features_labels[:, -1])
+    #
+    # # build graph
+    # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    # idx_map = {j: i for i, j in enumerate(idx)}
+    # edges_unordered = np.genfromtxt("{}{}.cites".format(path, dataset),
+    #                                 dtype=np.int32)
+    # edges = np.array(list(map(idx_map.get, edges_unordered.flatten())),
+    #                  dtype=np.int32).reshape(edges_unordered.shape)
+    # adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+    #                     shape=(labels.shape[0], labels.shape[0]),
+    #                     dtype=np.float32)
+    #
+    # # build symmetric adjacency matrix
+    # adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    #
+    # features = normalize(features)
+    # adj = normalize(adj + sp.eye(adj.shape[0]))
+    #
+    # idx_train = range(677)
+    # idx_val = range(677, 1354)
+    # idx_test = range(1354, 2708)
+    #
+    # features = torch.FloatTensor(np.array(features.todense()))
+    # labels = torch.LongTensor(np.where(labels)[1])
+    # adj = sparse_mx_to_torch_sparse_tensor(adj)
+    #
+    # idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    # idx_test = torch.LongTensor(idx_test)
+
+    return adj, features, labels, idx_train, idx_test
+
+
+def load_data_fb_edu_gender2_2(ii,sed,path="../data/", dataset="fb"):
+    """Load citation network dataset (cora only for now)"""
+    print('Loading {} dataset...'.format(dataset))
+
+    num_nodes = 1600
+    num_feats = 1283
+
+    f2 = open("../data/fb-edu-gender2/fb-adj-feat-{0}-{1}-edu-gender.pkl".format(str(ii),str(sed)), 'rb')
+    adj, ft = pkl.load(f2, encoding='latin1')
+    print(np.shape(ft))
+    # print(adj[0])
+    # print(adj[10000])
+    # print(adj[12470])
+    # print(adj[22469])
+
+    g = nx.Graph(adj)
+
+
+    # adj1=np.array(adj.todense())
+
+
+    feat_data = ft
+    print((np.shape(ft)))
+
+    g_index = 77  # gender
+    r_index = 1154  # religion
+    p_index = 1278  # political
+    e_index = 53  # education_type
+
+    labels=np.array((ft)[:,e_index]-1)
+
+
+    # build symmetric adjacency matrix
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    # print()
+    idx= np.arange(num_feats)
+    idx=np.delete(idx,53)
+
+    features = ft[:,idx]
+    print(np.shape(features))
+    # exit()
+    features = sp.csr_matrix(features, dtype=np.float32)
+
+    features = normalize(features)
+    adj = normalize(adj + sp.eye(adj.shape[0]))
+    # print(adj)
+    # print(np.shape(adj))
+
+    idx_test = range(0,1600,3)
+    # idx_val = range(1800, 1977)
+    idx_train1 = range(1,1600,3)
+    idx_train2 = range(2, 1600, 3)
+
+    idx_train=list(idx_train1)+list(idx_train2)
+    print(len(idx_train))
+
+    features = torch.FloatTensor(np.array(features.todense()))
+    labels = torch.LongTensor(labels)
+
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
+
+    idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    idx_test = torch.LongTensor(idx_test)
+
+    # idx_features_labels = np.genfromtxt("{}{}.content".format(path, dataset),
+    #                                     dtype=np.dtype(str))
+    # features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
+    # labels = encode_onehot(idx_features_labels[:, -1])
+    #
+    # # build graph
+    # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    # idx_map = {j: i for i, j in enumerate(idx)}
+    # edges_unordered = np.genfromtxt("{}{}.cites".format(path, dataset),
+    #                                 dtype=np.int32)
+    # edges = np.array(list(map(idx_map.get, edges_unordered.flatten())),
+    #                  dtype=np.int32).reshape(edges_unordered.shape)
+    # adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+    #                     shape=(labels.shape[0], labels.shape[0]),
+    #                     dtype=np.float32)
+    #
+    # # build symmetric adjacency matrix
+    # adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    #
+    # features = normalize(features)
+    # adj = normalize(adj + sp.eye(adj.shape[0]))
+    #
+    # idx_train = range(677)
+    # idx_val = range(677, 1354)
+    # idx_test = range(1354, 2708)
+    #
+    # features = torch.FloatTensor(np.array(features.todense()))
+    # labels = torch.LongTensor(np.where(labels)[1])
+    # adj = sparse_mx_to_torch_sparse_tensor(adj)
+    #
+    # idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    # idx_test = torch.LongTensor(idx_test)
+
+    return adj, features, labels, idx_train, idx_test
+
+def load_data_fb_edu_gender2_3(ii,sed,path="../data/", dataset="fb"):
+    """Load citation network dataset (cora only for now)"""
+    print('Loading {} dataset...'.format(dataset))
+
+    num_nodes = 1600
+    num_feats = 1283
+
+    f2 = open("../data/fb-edu-gender-2.10-small-group-diff/fb-adj-feat-{0}-{1}-edu-gender.pkl".format(str(ii),str(sed)), 'rb')
+    adj, ft = pkl.load(f2, encoding='latin1')
+    print(np.shape(ft))
+    # print(adj[0])
+    # print(adj[10000])
+    # print(adj[12470])
+    # print(adj[22469])
+
+    g = nx.Graph(adj)
+
+
+    # adj1=np.array(adj.todense())
+
+
+    feat_data = ft
+    print((np.shape(ft)))
+
+    g_index = 77  # gender
+    r_index = 1154  # religion
+    p_index = 1278  # political
+    e_index = 53  # education_type
+
+    labels=np.array((ft)[:,e_index]-1)
+
+
+    # build symmetric adjacency matrix
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    # print()
+    idx= np.arange(num_feats)
+    idx=np.delete(idx,53)
+
+    features = ft[:,idx]
+    print(np.shape(features))
+    # exit()
+    features = sp.csr_matrix(features, dtype=np.float32)
+
+    features = normalize(features)
+    adj = normalize(adj + sp.eye(adj.shape[0]))
+    # print(adj)
+    # print(np.shape(adj))
+
+    # idx_test = range(0,1600,3)
+    # # idx_val = range(1800, 1977)
+    # idx_train1 = range(1,1600,3)
+    # idx_train2 = range(2, 1600, 3)
+    #
+    # idx_train=list(idx_train1)+list(idx_train2)
+    # print(len(idx_train))
+
+    idx_test = range(1200,1600)
+    # idx_val = range(1800, 1977)
+    idx_train = range(0,1200)
+
+    features = torch.FloatTensor(np.array(features.todense()))
+    labels = torch.LongTensor(labels)
+
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
+
+    idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    idx_test = torch.LongTensor(idx_test)
+
+    # idx_features_labels = np.genfromtxt("{}{}.content".format(path, dataset),
+    #                                     dtype=np.dtype(str))
+    # features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
+    # labels = encode_onehot(idx_features_labels[:, -1])
+    #
+    # # build graph
+    # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    # idx_map = {j: i for i, j in enumerate(idx)}
+    # edges_unordered = np.genfromtxt("{}{}.cites".format(path, dataset),
+    #                                 dtype=np.int32)
+    # edges = np.array(list(map(idx_map.get, edges_unordered.flatten())),
+    #                  dtype=np.int32).reshape(edges_unordered.shape)
+    # adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+    #                     shape=(labels.shape[0], labels.shape[0]),
+    #                     dtype=np.float32)
+    #
+    # # build symmetric adjacency matrix
+    # adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    #
+    # features = normalize(features)
+    # adj = normalize(adj + sp.eye(adj.shape[0]))
+    #
+    # idx_train = range(677)
+    # idx_val = range(677, 1354)
+    # idx_test = range(1354, 2708)
+    #
+    # features = torch.FloatTensor(np.array(features.todense()))
+    # labels = torch.LongTensor(np.where(labels)[1])
+    # adj = sparse_mx_to_torch_sparse_tensor(adj)
+    #
+    # idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    # idx_test = torch.LongTensor(idx_test)
+
+    return adj, features, labels, idx_train, idx_test
+
+
+def load_data_fb_edu_other(ii,sed,path="../data/", dataset="fb"):
+    print('Loading {} dataset...'.format(dataset))
+
+    num_nodes = 1600
+    num_feats = 2
+
+    f2 = open(
+        "../data/fb-edu-others-nooverlap/fb-adj-feat-{0}-{1}-edu-gender.pkl".format(str(ii), str(sed)),
+        'rb')
+    adj, ft = pkl.load(f2, encoding='latin1')
+    print(np.shape(ft))
+    # print(adj[0])
+    # print(adj[10000])
+    # print(adj[12470])
+    # print(adj[22469])
+
+    g = nx.Graph(adj)
+
+    # adj1=np.array(adj.todense())
+
+
+    feat_data = ft
+    print((np.shape(ft)))
+
+    # g_index = 77  # gender
+    # r_index = 1154  # religion
+    # p_index = 1278  # political
+    # e_index = 53  # education_type
+    e_index=0
+    other_index=1
+
+    labels = np.array((ft)[:, other_index])
+
+    for lb in range(len(labels)):
+        if labels[lb]==2:
+            labels[lb]=1
+    # print(set(list(labels)))
+    # print(set(list(labels[0:1200])))
+    # print(set(list((ft)[:, e_index])))
+
+    # print(len(np.where(labels==0)[0]))
+    # print(len(np.where(labels == 1)[0]))
+    # print(len(np.where(labels == 2)[0]))
+
+    # build symmetric adjacency matrix
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    # print()
+    idx = np.arange(num_feats)
+    idx = np.delete(idx, 1)
+
+    features = ft[:, idx]
+    print(np.shape(features))
+    # exit()
+    features = sp.csr_matrix(features, dtype=np.float32)
+
+    features = normalize(features)
+    adj = normalize(adj + sp.eye(adj.shape[0]))
+    # print(adj)
+    # print(np.shape(adj))
+
+    # idx_test = range(0,1600,3)
+    # # idx_val = range(1800, 1977)
+    # idx_train1 = range(1,1600,3)
+    # idx_train2 = range(2, 1600, 3)
+    #
+    # idx_train=list(idx_train1)+list(idx_train2)
+    # print(len(idx_train))
+
+    idx_test = range(1200, 1600)
+    # idx_val = range(1800, 1977)
+    idx_train = range(0, 1200)
+
+    features = torch.FloatTensor(np.array(features.todense()))
+    labels = torch.LongTensor(labels)
+
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
+
+    idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    idx_test = torch.LongTensor(idx_test)
+
+    # idx_features_labels = np.genfromtxt("{}{}.content".format(path, dataset),
+    #                                     dtype=np.dtype(str))
+    # features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
+    # labels = encode_onehot(idx_features_labels[:, -1])
+    #
+    # # build graph
+    # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    # idx_map = {j: i for i, j in enumerate(idx)}
+    # edges_unordered = np.genfromtxt("{}{}.cites".format(path, dataset),
+    #                                 dtype=np.int32)
+    # edges = np.array(list(map(idx_map.get, edges_unordered.flatten())),
+    #                  dtype=np.int32).reshape(edges_unordered.shape)
+    # adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+    #                     shape=(labels.shape[0], labels.shape[0]),
+    #                     dtype=np.float32)
+    #
+    # # build symmetric adjacency matrix
+    # adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    #
+    # features = normalize(features)
+    # adj = normalize(adj + sp.eye(adj.shape[0]))
+    #
+    # idx_train = range(677)
+    # idx_val = range(677, 1354)
+    # idx_test = range(1354, 2708)
+    #
+    # features = torch.FloatTensor(np.array(features.todense()))
+    # labels = torch.LongTensor(np.where(labels)[1])
+    # adj = sparse_mx_to_torch_sparse_tensor(adj)
+    #
+    # idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    # idx_test = torch.LongTensor(idx_test)
+
+    return adj, features, labels, idx_train, idx_test
+
+
+def load_data_fb_ego_698_orig2(nd,gindex):
+    """Load citation network dataset (cora only for now)"""
+    # print('Loading {} dataset...'.format(dataset))
+
+    # num_nodes = 1600
+    # num_feats = 1283
+
+    f2 = open("./698-adj-feat.pkl", 'rb')
+    adj, ft = pkl.load(f2, encoding='latin1')
+    print(np.shape(ft))
+
+    g = nx.Graph(adj)
+    # ed=list(g.edges())[nd]
+    # e1=ed[0]
+    # e2=ed[1]
+    #
+    # adj1=np.array(adj.todense())
+    # adj1[e1][e2]=0
+    # adj1[e2][e1] = 0
+    adj1=adj
+
+    g1 = nx.Graph(adj1)
+    adj = nx.adjacency_matrix(g1)
+
+
+    #
+    #
+    # ft = np.delete(ft, nd,0)
+    #
+    # print(np.shape(ft))
+    # print(np.shape(adj1))
+    #
+    # adj1 = np.delete(adj1, nd,0)
+    # adj1 = np.delete(adj1, nd,1)
+    # print(np.shape(adj1))
+    #
+    # g1 = nx.Graph(adj1)
+    #
+    # adj=nx.adjacency_matrix(g1)
+
+    feat_data = ft
+    # print((np.shape(ft)))
+
+    g_index = 26  # gender
+    r_index = 1154  # religion
+    p_index = 1278  # political
+    e_index = 12  # education_type
+
+    labels=np.array((ft)[:,e_index])
+    print(set(labels))
+
+
+    # build symmetric adjacency matrix
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    # print()
+    num_feats=np.shape(ft)[1]
+    idx= np.arange(num_feats)
+    idx=np.delete(idx,12)
+
+    features = ft[:,idx]
+    print(np.shape(features))
+    # exit()
+    features = sp.csr_matrix(features, dtype=np.float32)
+
+    features = normalize(features)
+    adj = normalize(adj + sp.eye(adj.shape[0]))
+    # print(adj)
+    # print(np.shape(adj))
+
+    # idx_test = range(1200,1600)
+    # idx_val = range(1800, 1977)
+    idx_train = range(0,g.number_of_nodes())
+
+    features = torch.FloatTensor(np.array(features.todense()))
+    labels = torch.LongTensor(labels)
+
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
+
+    idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    # idx_test = torch.LongTensor(idx_test)
+
+    # idx_features_labels = np.genfromtxt("{}{}.content".format(path, dataset),
+    #                                     dtype=np.dtype(str))
+    # features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
+    # labels = encode_onehot(idx_features_labels[:, -1])
+    #
+    # # build graph
+    # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    # idx_map = {j: i for i, j in enumerate(idx)}
+    # edges_unordered = np.genfromtxt("{}{}.cites".format(path, dataset),
+    #                                 dtype=np.int32)
+    # edges = np.array(list(map(idx_map.get, edges_unordered.flatten())),
+    #                  dtype=np.int32).reshape(edges_unordered.shape)
+    # adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+    #                     shape=(labels.shape[0], labels.shape[0]),
+    #                     dtype=np.float32)
+    #
+    # # build symmetric adjacency matrix
+    # adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    #
+    # features = normalize(features)
+    # adj = normalize(adj + sp.eye(adj.shape[0]))
+    #
+    # idx_train = range(677)
+    # idx_val = range(677, 1354)
+    # idx_test = range(1354, 2708)
+    #
+    # features = torch.FloatTensor(np.array(features.todense()))
+    # labels = torch.LongTensor(np.where(labels)[1])
+    # adj = sparse_mx_to_torch_sparse_tensor(adj)
+    #
+    # idx_train = torch.LongTensor(idx_train)
+    # idx_val = torch.LongTensor(idx_val)
+    # idx_test = torch.LongTensor(idx_test)
+
+
+
+
