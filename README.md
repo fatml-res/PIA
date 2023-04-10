@@ -12,7 +12,11 @@ The original datasets we used in the paper can be download here:
 
 - Pubmed: https://linqs-data.soe.ucsc.edu/public/Pubmed-Diabetes
 
-The sampled sub-graphs for PIA can be downloaded in this link: https://drive.google.com/drive/folders/1ZvaevXNSxIxE966xoKnpTHfBr21VohBo?usp=sharing
+The sampled sub-graphs on Pokec dataset for PIA can be downloaded in this link: 
+
+https://drive.google.com/drive/folders/1cdQfgqS2VPzdB-jXFZCMFHUfUAWxJ6OG?usp=sharing
+
+https://drive.google.com/drive/folders/1-iHDEmXE11OOUBwyWD22c_FAD-bbqjp-?usp=share_link
 
 - For each property task, we have 1000 sub-graphs to do training and testing.
 
