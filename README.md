@@ -1,6 +1,6 @@
 # PIA
 
-This is the implementation for our group property inference attack against GNNs, which has been submitted to ACM CCS 2022
+This is the implementation for our paper titled "Group Property Inference Attacks Against Graph Neural Networks" accepted by The ACM Conference on Computer and Communications Security (CCS), 2022. 
 
 ## Datasets
 
